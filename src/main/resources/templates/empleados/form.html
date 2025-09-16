@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${empleado.id} ? 'Editar Empleado' : 'Crear Empleado'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 50%; margin: 20px auto; }
+        form div { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], input[type="email"] {
+            width: 100%; padding: 8px; box-sizing: border-box;
+        }
+        .btn { padding: 10px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 th:text="${empleado.id} ? 'Editar Empleado' : 'Crear Nuevo Empleado'"></h2>
+        
+        <form th:action="@{/empleados/guardar}" th:object="${empleado}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" required />
+            </div>
+            <div>
+                <label for="cargo">Cargo:</label>
+                <input type="text" id="cargo" th:field="*{cargo}" required />
+            </div>
+            <div>
+                <label for="salario">Salario:</label>
+                <input type="number" id="salario" th:field="*{salario}" step="0.01" required />
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}" required />
+            </div>
+            
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a th:href="@{/empleados}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>
