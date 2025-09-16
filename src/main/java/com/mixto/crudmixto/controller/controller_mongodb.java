@@ -3,64 +3,62 @@ package com.mixto.crudmixto.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import com.mixto.crudmixto.entity.Empleado;
 import com.mixto.crudmixto.entity.Proyecto;
+import com.mixto.crudmixto.service.EmpleadoService;
 import com.mixto.crudmixto.service.ProyectoService;
 
-@RestController
-@RequestMapping("/api/proyectos")
+@Controller
+@RequestMapping("/proyectos")
 public class controller_mongodb {
+
     @Autowired
     private ProyectoService proyectoService;
 
-    @PostMapping
-    public ResponseEntity<Proyecto> crearProyecto(@RequestBody Proyecto proyecto) {
-        Proyecto nuevoProyecto = proyectoService.guardar(proyecto);
-        return new ResponseEntity<>(nuevoProyecto, HttpStatus.CREATED);
-    }
+    @Autowired
+    private EmpleadoService empleadoService;
 
-    @GetMapping
-    public ResponseEntity<List<Proyecto>> obtenerProyectos() {
+    @GetMapping("/listar")
+    public String listarProyectos(Model model) {
         List<Proyecto> proyectos = proyectoService.obtenerTodos();
-        return new ResponseEntity<>(proyectos, HttpStatus.OK);
+        model.addAttribute("proyectos", proyectos);
+        return "proyectos/proyecto-list"; // Corrected return statement
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Proyecto> obtenerProyectoPorId(@PathVariable String id) {
+    @GetMapping("/crear")
+    public String mostrarFormulario(Model model) {
+        model.addAttribute("proyecto", new Proyecto());
+        List<Empleado> empleados = empleadoService.obtenerTodos();
+        model.addAttribute("empleados", empleados);
+        return "proyectos/proyecto-form"; // Corrected return statement
+    }
+
+    @PostMapping("/guardar")
+    public String guardarProyecto(@ModelAttribute Proyecto proyecto) {
+        proyectoService.guardar(proyecto);
+        return "redirect:/proyectos/listar";
+    }
+
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioEditar(@PathVariable String id, Model model) {
         Proyecto proyecto = proyectoService.obtenerPorId(id);
-        if (proyecto != null) {
-            return new ResponseEntity<>(proyecto, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        model.addAttribute("proyecto", proyecto);
+        List<Empleado> empleados = empleadoService.obtenerTodos();
+        model.addAttribute("empleados", empleados);
+        return "proyectos/proyecto-form"; // Corrected return statement
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Proyecto> actualizarProyecto(@PathVariable String id, @RequestBody Proyecto proyecto) {
-        proyecto.setId(id);
-        Proyecto proyectoActualizado = proyectoService.guardar(proyecto); // Línea corregida
-        return new ResponseEntity<>(proyectoActualizado, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProyecto(@PathVariable String id) {
+    @GetMapping("/eliminar/{id}")
+    public String eliminarProyecto(@PathVariable String id) {
         proyectoService.eliminar(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-    
-    @GetMapping("/empleado/{empleadoId}")
-    public ResponseEntity<List<Proyecto>> obtenerProyectosPorEmpleadoId(@PathVariable Long empleadoId) {
-        List<Proyecto> proyectos = proyectoService.obtenerProyectosPorEmpleadoId(empleadoId);
-        return new ResponseEntity<>(proyectos, HttpStatus.OK);
+        return "redirect:/proyectos/listar";
     }
 }

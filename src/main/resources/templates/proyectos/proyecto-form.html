@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Proyectos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container { margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Formulario de Proyecto</h2>
+    <form th:action="@{/proyectos/guardar}" th:object="${proyecto}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        <div class="form-group">
+            <label for="nombre">Nombre:</label>
+            <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="descripcion">Descripción:</label>
+            <textarea id="descripcion" th:field="*{descripcion}" class="form-control" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="empleado">Asignar a Empleado:</label>
+            <select id="empleado" th:field="*{empleadoId}" class="form-control" required>
+                <option value="">Selecciona un empleado</option>
+                <option th:each="empleado : ${empleados}" 
+                        th:value="${empleado.id}" 
+                        th:text="${empleado.nombre}">
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Proyecto</button>
+        <a th:href="@{/proyectos/listar}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+</body>
+</html>
