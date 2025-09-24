@@ -1,6 +1,8 @@
 package com.mixto.crudmixto.entity;
+import java.util.List;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +28,8 @@ public class Empleado {
 
     @Column(name = "email", unique = true)
     private String email;
+    @ElementCollection
+    private List<String> proyectoIds;
 
     // Getters y Setters
     public Long getId() {
@@ -62,6 +66,13 @@ public class Empleado {
 
     public String getEmail() {
         return email;
+    }
+    public List<String> getProyectoIds() {
+        return proyectoIds;
+    }
+
+    public void setProyectoIds(List<String> proyectoIds) {
+        this.proyectoIds = proyectoIds;
     }
 
     public void setEmail(String email) {

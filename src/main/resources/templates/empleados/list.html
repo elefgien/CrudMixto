@@ -15,8 +15,12 @@
         .btn-danger { background-color: #dc3545; color: white; }
     </style>
 </head>
+ <link rel="stylesheet" th:href="@{/css/styles.css}">
 <body>
-    <div class="container">
+    <div class="">
+        <div style="position: absolute; top: 10px; right: 10px;">
+            <a th:href="@{/menu}" style="background-color: #6c757d;" class="btn btn-secondary">Menú</a>
+        </div>
         <h2>Lista de Empleados</h2>
         <a th:href="@{/empleados/nuevo}" class="btn btn-primary">Crear Nuevo Empleado</a>
         <br><br>

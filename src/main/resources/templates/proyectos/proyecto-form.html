@@ -2,37 +2,52 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Proyectos</title>
+    <title th:text="${proyecto.id != null ? 'Editar Proyecto' : 'Crear Proyecto'}">Gestión de Proyectos</title>
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .container { margin-top: 20px; }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 <div class="container">
-    <h2>Formulario de Proyecto</h2>
+    <div style="position: absolute; top: 10px; right: 10px;">
+        <a th:href="@{/menu}" class="btn btn-secondary">Menú</a>
+        <a th:href="@{/empleados/listar}" class="btn btn-info"><i class="fas fa-users"></i> Ir a Empleados</a>
+    </div>
+    
+    <h2 th:text="${proyecto.id != null ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}">Formulario de Proyecto</h2>
+    
     <form th:action="@{/proyectos/guardar}" th:object="${proyecto}" method="post">
-        <input type="hidden" th:field="*{id}" />
+        
+        <div th:if="${proyecto.id != null}">
+            <input type="hidden" th:field="*{id}" />
+        </div>
         <div class="form-group">
             <label for="nombre">Nombre:</label>
             <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required>
         </div>
+        
         <div class="form-group">
             <label for="descripcion">Descripción:</label>
             <textarea id="descripcion" th:field="*{descripcion}" class="form-control" required></textarea>
         </div>
+        
         <div class="form-group">
             <label for="empleado">Asignar a Empleado:</label>
-            <select id="empleado" th:field="*{empleadoId}" class="form-control" required>
+            <select id="empleado" th:field="*{empleadoId}" class="form-control" style="padding: 10px 15px; height: 50px;" required>
                 <option value="">Selecciona un empleado</option>
-                <option th:each="empleado : ${empleados}" 
-                        th:value="${empleado.id}" 
-                        th:text="${empleado.nombre}">
-                </option>
+                <option th:each="empleado : ${empleados}"
+                        th:value="${empleado.id}"
+                        th:text="${empleado.nombre}"> </option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Guardar Proyecto</button>
-        <a th:href="@{/proyectos/listar}" class="btn btn-secondary">Cancelar</a>
+        
+        <button type="submit" class="btn btn-primary">
+             <i class="fas fa-save"></i> Guardar Proyecto
+        </button>
+        
+        <a th:href="@{/proyectos/listar}" class="btn btn-secondary">
+             <i class="fas fa-times-circle"></i> Cancelar
+        </a>
     </form>
 </div>
 </body>

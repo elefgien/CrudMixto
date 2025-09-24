@@ -15,7 +15,14 @@ public class EmpleadoService {
     @Autowired
     private EmpleadoRepository empleadoRepository;
 
-    public Empleado guardar(Empleado empleado) { return empleadoRepository.save(empleado); }
+    public Empleado guardar(Empleado empleado) {
+        // Check if email already exists
+        Empleado existing = empleadoRepository.findByEmail(empleado.getEmail());
+        if (existing != null && !existing.getId().equals(empleado.getId())) {
+            throw new IllegalArgumentException("Este correo ya esta registrado intenta con otro");
+        }
+        return empleadoRepository.save(empleado);
+    }
     public Empleado obtenerPorId(Long id) { Optional<Empleado> empleado = empleadoRepository.findById(id); return empleado.orElse(null); }
     public List<Empleado> obtenerTodos() { return empleadoRepository.findAll(); }
     public void eliminar(Long id) { empleadoRepository.deleteById(id); }

@@ -1,12 +1,13 @@
 package com.mixto.crudmixto.service;
 
-import com.mixto.crudmixto.entity.Proyecto;
-import com.mixto.crudmixto.repository.ProyectoRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.mixto.crudmixto.entity.Proyecto;
+import com.mixto.crudmixto.repository.ProyectoRepository;
 
 @Service
 public class ProyectoService {
@@ -14,8 +15,14 @@ public class ProyectoService {
     @Autowired
     private ProyectoRepository proyectoRepository;
 
+    @Autowired
+    private EmpleadoService empleadoService;
+
     // Guarda o actualiza un proyecto
     public Proyecto guardar(Proyecto proyecto) {
+        if (proyecto.getCreatedAt() == null) {
+            proyecto.setCreatedAt(java.time.LocalDateTime.now());
+        }
         return proyectoRepository.save(proyecto);
     }
 

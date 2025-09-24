@@ -1,5 +1,5 @@
 package com.mixto.crudmixto.entity;
-
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -12,7 +12,8 @@ public class Proyecto {
     private String id;
     private String nombre;
     private String descripcion;
-    private Long empleadoId; // Clave para asociar proyectos con empleados [cite: 19]
+    private Long empleadoId; // Clave para asociar proyectos con empleados
+    private LocalDateTime createdAt;
     private List<Tarea> tareas;
 
     // Getters y Setters
@@ -46,6 +47,14 @@ public class Proyecto {
 
     public void setEmpleadoId(Long empleadoId) {
         this.empleadoId = empleadoId;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public List<Tarea> getTareas() {

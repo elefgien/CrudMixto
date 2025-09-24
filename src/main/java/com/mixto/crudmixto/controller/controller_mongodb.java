@@ -30,6 +30,8 @@ public class controller_mongodb {
     public String listarProyectos(Model model) {
         List<Proyecto> proyectos = proyectoService.obtenerTodos();
         model.addAttribute("proyectos", proyectos);
+        List<Empleado> empleados = empleadoService.obtenerTodos();
+        model.addAttribute("empleados", empleados);
         return "proyectos/proyecto-list"; // Corrected return statement
     }
 

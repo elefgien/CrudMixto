@@ -14,12 +14,22 @@
         .btn { padding: 10px 15px; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
         .btn-success { background-color: #28a745; color: white; }
         .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-info { background-color: #17a2b8; color: white; }
     </style>
+     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
     <div class="container">
+        <div style="position: absolute; top: 10px; right: 10px;">
+            <a th:href="@{/menu}" class="btn btn-secondary">Menú</a>
+            <a th:href="@{/proyectos/listar}" class="btn btn-info">Ir a Proyectos</a>
+        </div>
         <h2 th:text="${empleado.id} ? 'Editar Empleado' : 'Crear Nuevo Empleado'"></h2>
-        
+
+        <div th:if="${error}" style="color: red; margin-bottom: 15px;">
+            <p th:text="${error}"></p>
+        </div>
+
         <form th:action="@{/empleados/guardar}" th:object="${empleado}" method="post">
             <input type="hidden" th:field="*{id}" />
 

@@ -20,7 +20,7 @@ public class controller_mysql { // Renombrado a controller_mysql
     private EmpleadoService empleadoService;
 
     // Muestra todos los empleados en la vista 'empleados/list'
-    @GetMapping
+    @GetMapping("/listar")
     public String listarEmpleados(Model model) {
         model.addAttribute("empleados", empleadoService.obtenerTodos());
         return "empleados/list";
@@ -35,9 +35,14 @@ public class controller_mysql { // Renombrado a controller_mysql
 
     // Guarda un nuevo empleado o actualiza uno existente
     @PostMapping("/guardar")
-    public String guardarEmpleado(@ModelAttribute("empleado") Empleado empleado) {
-        empleadoService.guardar(empleado);
-        return "redirect:/empleados";
+    public String guardarEmpleado(@ModelAttribute("empleado") Empleado empleado, Model model) {
+        try {
+            empleadoService.guardar(empleado);
+            return "redirect:/empleados";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "empleados/form";
+        }
     }
 
     // Muestra el formulario para editar un empleado
