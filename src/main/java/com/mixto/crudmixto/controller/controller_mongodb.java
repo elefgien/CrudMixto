@@ -1,6 +1,13 @@
 package com.mixto.crudmixto.controller;
 
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map; // <-- Importado
+import java.util.stream.Collectors; // <-- Importado
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -11,10 +18,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.lowagie.text.DocumentException;
 import com.mixto.crudmixto.entity.Empleado;
 import com.mixto.crudmixto.entity.Proyecto;
 import com.mixto.crudmixto.service.EmpleadoService;
 import com.mixto.crudmixto.service.ProyectoService;
+import com.mixto.crudmixto.util.ProyectoExcelExporter;
+import com.mixto.crudmixto.util.ProyectoPDFExporter;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/proyectos")
@@ -26,13 +38,27 @@ public class controller_mongodb {
     @Autowired
     private EmpleadoService empleadoService;
 
-    @GetMapping("/listar")
+    // --------------------------------------------------------------------------
+    // CRUD Y LISTADO (MODIFICADO PARA USAR MAPA)
+    // --------------------------------------------------------------------------
+      @GetMapping("/listar")
     public String listarProyectos(Model model) {
         List<Proyecto> proyectos = proyectoService.obtenerTodos();
         model.addAttribute("proyectos", proyectos);
-        List<Empleado> empleados = empleadoService.obtenerTodos();
-        model.addAttribute("empleados", empleados);
-        return "proyectos/proyecto-list"; // Corrected return statement
+        
+        List<Empleado> empleadosList = empleadoService.obtenerTodos();
+        
+        // CORRECCIÓN CLAVE: Usamos Empleado::getId para obtener el ID,
+        // pero lo convertimos a String usando String::valueOf para asegurar
+        // que el tipo de la clave K sea String, si Empleado::getId devuelve Long.
+        Map<String, Empleado> empleadosMap = empleadosList.stream()
+            .collect(Collectors.toMap(
+                empleado -> String.valueOf(empleado.getId()), // <-- CORRECCIÓN APLICADA AQUÍ
+                empleado -> empleado
+            ));
+            
+        model.addAttribute("empleadosMap", empleadosMap); // Pasa el mapa al modelo
+        return "proyectos/proyecto-list";
     }
 
     @GetMapping("/crear")
@@ -40,7 +66,7 @@ public class controller_mongodb {
         model.addAttribute("proyecto", new Proyecto());
         List<Empleado> empleados = empleadoService.obtenerTodos();
         model.addAttribute("empleados", empleados);
-        return "proyectos/proyecto-form"; // Corrected return statement
+        return "proyectos/proyecto-form";
     }
 
     @PostMapping("/guardar")
@@ -55,12 +81,82 @@ public class controller_mongodb {
         model.addAttribute("proyecto", proyecto);
         List<Empleado> empleados = empleadoService.obtenerTodos();
         model.addAttribute("empleados", empleados);
-        return "proyectos/proyecto-form"; // Corrected return statement
+        return "proyectos/proyecto-form";
     }
 
     @GetMapping("/eliminar/{id}")
     public String eliminarProyecto(@PathVariable String id) {
         proyectoService.eliminar(id);
         return "redirect:/proyectos/listar";
+    }
+
+    // --------------------------------------------------------------------------
+    // EXPORTACIÓN A PDF (TODOS)
+    // --------------------------------------------------------------------------
+    @GetMapping("/exportar/pdf")
+    public void exportarProyectosPDF(HttpServletResponse response) throws IOException, DocumentException {
+        response.setContentType("application/pdf");
+        
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String currentDateTime = dateFormatter.format(new Date());
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=proyectos_" + currentDateTime + ".pdf"; 
+        response.setHeader(headerKey, headerValue);
+
+        List<Proyecto> listProyectos = proyectoService.obtenerTodos();
+        
+        ProyectoPDFExporter exporter = new ProyectoPDFExporter(listProyectos);
+        exporter.export(response);
+    }
+
+    // --------------------------------------------------------------------------
+    // EXPORTACIÓN A PDF (INDIVIDUAL)
+    // --------------------------------------------------------------------------
+    @GetMapping("/exportar/pdf/{id}")
+    public void exportarProyectoIndividualPDF(@PathVariable("id") String id, HttpServletResponse response) throws IOException, DocumentException {
+        response.setContentType("application/pdf");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=proyecto_" + id + ".pdf";
+        response.setHeader(headerKey, headerValue);
+
+        Proyecto proyecto = proyectoService.obtenerPorId(id);
+        List<Proyecto> listProyectos = Collections.singletonList(proyecto);
+        
+        ProyectoPDFExporter exporter = new ProyectoPDFExporter(listProyectos);
+        exporter.export(response);
+    }
+
+    // --------------------------------------------------------------------------
+    // EXPORTACIÓN A EXCEL (TODOS)
+    // --------------------------------------------------------------------------
+    @GetMapping("/exportar/excel")
+    public void exportarProyectosExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=proyectos_todos.xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        List<Proyecto> listProyectos = proyectoService.obtenerTodos();
+        
+        ProyectoExcelExporter exporter = new ProyectoExcelExporter(listProyectos);
+        exporter.export(response);
+    }
+
+    // --------------------------------------------------------------------------
+    // EXPORTACIÓN A EXCEL (INDIVIDUAL)
+    // --------------------------------------------------------------------------
+    @GetMapping("/exportar/excel/{id}")
+    public void exportarProyectoIndividualExcel(@PathVariable("id") String id, HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=proyecto_" + id + ".xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        Proyecto proyecto = proyectoService.obtenerPorId(id);
+        List<Proyecto> listProyectos = Collections.singletonList(proyecto);
+
+        ProyectoExcelExporter exporter = new ProyectoExcelExporter(listProyectos);
+        exporter.export(response);
     }
 }
