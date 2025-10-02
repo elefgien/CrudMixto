@@ -1,28 +1,40 @@
-# Imagen base con Java 17 y Maven
+# -------------------------
+# FASE DE COMPILACIÓN
+# -------------------------
 FROM maven:3.9.9-eclipse-temurin-17 AS build
 
 # Definir directorio de trabajo
 WORKDIR /app
 
-# Copiar todo el proyecto al contenedor
-COPY . .
+# Copiar archivos de dependencia primero para aprovechar el cache de Docker
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-# Compilar la app (sin ejecutar tests)
+# Copiar el resto del código y compilar
+COPY src ./src
 RUN mvn clean package -DskipTests
 
 # -------------------------
-# Fase de ejecución
+# FASE DE EJECUCIÓN (Usando una imagen más ligera)
 # -------------------------
-FROM eclipse-temurin:17-jdk
+# Usar la imagen slim para reducir el tamaño final del contenedor
+FROM eclipse-temurin:17-jre-slim
+
+# Definir variables de entorno de JVM para optimización de contenedor
+ENV JAVA_OPTS="-XX:+ExitOnOutOfMemoryError -XX:+UseG1GC"
+
+# Crear un usuario no root para seguridad
+RUN addgroup --system spring && adduser --system --ingroup spring spring
+USER spring
 
 WORKDIR /app
 
 # Copiar el jar generado en la fase de build
 COPY --from=build /app/target/crudmixto-0.0.1-SNAPSHOT.jar app.jar
 
-# Exponer el puerto (Render ignora este pero es útil localmente)
-EXPOSE 8081
+# El puerto 8081 es irrelevante para Render, se usará $PORT (10000) de forma dinámica.
+# Ya que Spring Boot lo detecta automáticamente, no es necesario EXPOSE aquí.
 
-# Ejecutar la app
-CMD ["java", "-jar", "app.jar"]
-
+# Ejecutar la app. Usar el formato ENTRYPOINT + CMD es más robusto para Docker.
+ENTRYPOINT ["java", "-jar"]
+CMD ["app.jar"]
