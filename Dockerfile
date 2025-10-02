@@ -17,8 +17,8 @@ RUN mvn clean package -DskipTests
 # -------------------------
 # FASE DE EJECUCIÓN (Usando una imagen más ligera)
 # -------------------------
-# Usar la imagen slim para reducir el tamaño final del contenedor
-FROM eclipse-temurin:17-jre-slim
+# CAMBIO CLAVE: Usamos '17-jre' en lugar de '17-jre-slim'
+FROM eclipse-temurin:17-jre
 
 # Definir variables de entorno de JVM para optimización de contenedor
 ENV JAVA_OPTS="-XX:+ExitOnOutOfMemoryError -XX:+UseG1GC"
@@ -31,9 +31,6 @@ WORKDIR /app
 
 # Copiar el jar generado en la fase de build
 COPY --from=build /app/target/crudmixto-0.0.1-SNAPSHOT.jar app.jar
-
-# El puerto 8081 es irrelevante para Render, se usará $PORT (10000) de forma dinámica.
-# Ya que Spring Boot lo detecta automáticamente, no es necesario EXPOSE aquí.
 
 # Ejecutar la app. Usar el formato ENTRYPOINT + CMD es más robusto para Docker.
 ENTRYPOINT ["java", "-jar"]
