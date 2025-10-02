@@ -21,7 +21,7 @@ WORKDIR /app
 COPY --from=build /app/target/crudmixto-0.0.1-SNAPSHOT.jar app.jar
 
 # Exponer el puerto (Render ignora este pero es útil localmente)
-EXPOSE 8080
+EXPOSE 8081
 
 # Ejecutar la app
 CMD ["java", "-jar", "app.jar"]
