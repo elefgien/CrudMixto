@@ -42,27 +42,28 @@
             <td th:text="${proyecto.nombre}"></td>
             <td th:text="${proyecto.descripcion}"></td>
             
-            <td th:with="empleadoEncontrado=${empleadosMap.get(proyecto.empleadoId)}">
+            <td th:with="
+        empleadoIdString=${proyecto.empleadoId != null ? proyecto.empleadoId.toString() : null}, 
+        empleadoEncontrado=${empleadosMap.get(empleadoIdString)}">
+                
                 <span th:if="${empleadoEncontrado}" 
-                      th:text="${empleadoEncontrado.nombre + ' (' + proyecto.empleadoId + ')'}">
+                    th:text="${empleadoEncontrado.nombre + ' (' + empleadoIdString + ')'}">
                     Nombre Empleado (ID)
                 </span>
+                
                 <span th:unless="${empleadoEncontrado}" style="color: red;">
-                    (No Asignado o No Encontrado)
+                    <span th:if="${empleadoIdString != null}" 
+                        th:text="'(ID ' + ${empleadoIdString} + ' - No Encontrado)'">
+                    </span>
+                    <span th:unless="${empleadoIdString != null}">(No Asignado)</span>
                 </span>
             </td>
             
             <td>
                 <a th:href="@{/proyectos/editar/{id}(id=${proyecto.id})}" class="btn btn-info btn-sm">Editar</a>
                 <a th:href="@{/proyectos/eliminar/{id}(id=${proyecto.id})}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este proyecto?');">Eliminar</a>
-                
-                <a th:href="@{/proyectos/exportar/pdf/__${proyecto.id}__}" class="btn btn-danger btn-sm" title="Descargar en PDF">
-                PDF
-                </a>
-                
-                <a th:href="@{/proyectos/exportar/excel/__${proyecto.id}__}" class="btn btn-success btn-sm" title="Descargar en Excel">
-                Excel
-                </a>
+                <a th:href="@{/proyectos/exportar/pdf/__${proyecto.id}__}" class="btn btn-danger btn-sm" title="Descargar en PDF">PDF</a>
+                <a th:href="@{/proyectos/exportar/excel/__${proyecto.id}__}" class="btn btn-success btn-sm" title="Descargar en Excel">Excel</a>
             </td>
         </tr>
         </tbody>

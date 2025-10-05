@@ -1,5 +1,6 @@
 package com.mixto.crudmixto.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +15,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    // CORRECCIÓN CLAVE: Se añade la restricción de unicidad
+    @Column(unique = true) 
     private String username;
+    
     private String password;
     private String role; // Ejemplo: ROLE_USER, ROLE_ADMIN
 

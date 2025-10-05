@@ -38,7 +38,7 @@ public class controller_mysql { // Renombrado a controller_mysql
     public String guardarEmpleado(@ModelAttribute("empleado") Empleado empleado, Model model) {
         try {
             empleadoService.guardar(empleado);
-            return "redirect:/empleados";
+            return "redirect:/empleados/listar";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "empleados/form";
@@ -57,6 +57,6 @@ public class controller_mysql { // Renombrado a controller_mysql
     @GetMapping("/eliminar/{id}")
     public String eliminarEmpleado(@PathVariable("id") Long id) {
         empleadoService.eliminar(id);
-        return "redirect:/empleados";
+        return "redirect:/empleados/listar";
     }
 }

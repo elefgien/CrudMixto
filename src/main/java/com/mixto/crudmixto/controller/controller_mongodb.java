@@ -41,26 +41,27 @@ public class controller_mongodb {
     // --------------------------------------------------------------------------
     // CRUD Y LISTADO (MODIFICADO PARA USAR MAPA)
     // --------------------------------------------------------------------------
-      @GetMapping("/listar")
-    public String listarProyectos(Model model) {
-        List<Proyecto> proyectos = proyectoService.obtenerTodos();
-        model.addAttribute("proyectos", proyectos);
-        
-        List<Empleado> empleadosList = empleadoService.obtenerTodos();
-        
-        // CORRECCIÓN CLAVE: Usamos Empleado::getId para obtener el ID,
-        // pero lo convertimos a String usando String::valueOf para asegurar
-        // que el tipo de la clave K sea String, si Empleado::getId devuelve Long.
-        Map<String, Empleado> empleadosMap = empleadosList.stream()
-            .collect(Collectors.toMap(
-                empleado -> String.valueOf(empleado.getId()), // <-- CORRECCIÓN APLICADA AQUÍ
-                empleado -> empleado
-            ));
+     @GetMapping("/listar")
+        public String listarProyectos(Model model) {
+            List<Proyecto> proyectos = proyectoService.obtenerTodos();
+            model.addAttribute("proyectos", proyectos);
             
-        model.addAttribute("empleadosMap", empleadosMap); // Pasa el mapa al modelo
-        return "proyectos/proyecto-list";
-    }
-
+            List<Empleado> empleadosList = empleadoService.obtenerTodos();
+            
+            // CORRECCIÓN CLAVE EN EL CONTROLADOR: 
+            // Usamos .toString() para asegurar que la clave del mapa es un String consistente.
+            Map<String, Empleado> empleadosMap = empleadosList.stream()
+                .collect(Collectors.toMap(
+                    // El ID se convierte a String. Si es nulo, usamos una cadena vacía como clave.
+                    empleado -> empleado.getId() != null ? empleado.getId().toString() : "", 
+                    empleado -> empleado
+                ));
+                
+            model.addAttribute("empleadosMap", empleadosMap); // Pasa el mapa a la vista
+            model.addAttribute("empleados", empleadosList); // También pasamos la lista para otros posibles usos (selects)
+            
+            return "proyectos/proyecto-list";
+        }
     @GetMapping("/crear")
     public String mostrarFormulario(Model model) {
         model.addAttribute("proyecto", new Proyecto());
